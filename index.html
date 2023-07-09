@@ -1,0 +1,156 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Firestore Demo</title>
+    <style type="text/css">
+      label {
+        display: inline-block;
+        width: 80px;
+      }
+    </style>
+  </head>
+  <body>
+    <label for="Namebox">Name</label>
+    <input id="Namebox" type="text" /> <br /><br />
+    <label for="Rollbox">Roll No</label>
+    <input id="Rollbox" type="text" /> <br /><br />
+    <label for="Rollbox">Section</label>
+    <input id="Secbox" type="text" /> <br /><br />
+    <label for="Genbox">Gender</label>
+    <select id="Genbox">
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+    </select>
+    <br />
+    <hr />
+    <br />
+    <button id="insertBtn">Insert</button><br /><br />
+    <button id="getBtn">Get Data</button><br /><br />
+    <button id="updateBtn">Update</button><br /><br />
+    <button id="deleteBtn">Delete</button>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCaT1XD1npOrczpAMV1iNov5S6x62XPmQk",
+        authDomain: "firestore-demo-86cec.firebaseapp.com",
+        projectId: "firestore-demo-86cec",
+        storageBucket: "firestore-demo-86cec.appspot.com",
+        messagingSenderId: "83848017133",
+        appId: "1:83848017133:web:2d67566ffa9bea9f9488e4",
+      };
+
+      const app = initializeApp(firebaseConfig);
+
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+        setDoc,
+        collection,
+        addDoc,
+        updateDoc,
+        deleteDoc,
+        deleteField,
+      } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+      const db = getFirestore();
+
+      let Namebox = document.getElementById("Namebox");
+      let Rollbox = document.getElementById("Rollbox");
+      let Secbox = document.getElementById("Secbox");
+      let Genbox = document.getElementById("Genbox");
+
+      let insertBtn = document.getElementById("insertBtn");
+      let getBtn = document.getElementById("getBtn");
+      let updateBtn = document.getElementById("updateBtn");
+      let deleteBtn = document.getElementById("deleteBtn");
+
+      async function AddDocument_AutoID() {
+        var ref = collection(db, "StudentsList");
+
+        await addDoc(ref, {
+          studentName: Namebox.value,
+          rollNo: Rollbox.value,
+          Section: Secbox.value,
+          Gender: Genbox.value,
+        })
+          .then(() => {
+            alert("data added succesfully");
+          })
+          .catch((error) => {
+            alert("Error in saving data");
+            console.log(error);
+          });
+      }
+      async function AddDocument_customID() {
+        var ref = doc(db, "StudentsList", Rollbox.value);
+
+        const docRef = await setDoc(ref, {
+          studentName: Namebox.value,
+          rollNo: Rollbox.value,
+          Section: Secbox.value,
+          Gender: Genbox.value,
+        })
+          .then(() => {
+            alert("data added succesfully");
+          })
+          .catch((error) => {
+            alert("Error in saving data");
+            console.log(error);
+          });
+        console.log("doucment ID is " + docRef.id);
+      }
+      async function getADocument() {
+        var ref = doc(db, "StudentsList", Rollbox.value);
+        const docSnap = await getDoc(ref);
+
+        if (docSnap.exists()) {
+          Namebox.value = docSnap.data().studentName;
+          Secbox.value = docSnap.data().Section;
+          Genbox.value = docSnap.data().Gender;
+        } else alert("No such Document");
+      }
+      async function updateDocument() {
+        var ref = doc(db, "StudentsList", Rollbox.value);
+        await updateDoc(ref, {
+          studentName: Namebox.value,
+          rollNo: Rollbox.value,
+          Section: Secbox.value,
+          Gender: Genbox.value,
+        })
+          .then(() => {
+            alert("data updated succesfully");
+          })
+          .catch((error) => {
+            alert("Error in updating data");
+            console.log(error);
+          });
+      }
+      async function deleteDocument() {
+        var ref = doc(db, "StudentsList", Rollbox.value);
+        const docSnap = await getDoc(ref);
+
+        if (!docSnap.exists()) {
+          alert("Document does not exist");
+          return;
+        } else
+          await deleteDoc(ref)
+            .then(() => {
+              alert("data deleted succesfully");
+            })
+            .catch((error) => {
+              alert("Error in deleting data");
+              console.log(error);
+            });
+      }
+      //   insertBtn.addEventListener("click", AddDocument_AutoID);
+      insertBtn.addEventListener("click", AddDocument_customID);
+      updateBtn.addEventListener("click", updateDocument);
+      getBtn.addEventListener("click", getADocument);
+      deleteBtn.addEventListener("click", deleteDocument);
+    </script>
+  </body>
+</html>
